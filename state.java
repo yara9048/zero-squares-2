@@ -6,13 +6,23 @@ public class state {
     public int cost;
 
     public state() {
-        this.grid = new Element[5][5]; 
-        this.cost = 0; 
+        this.grid = new Element[5][5];
+        this.cost = 0;
+        this.parent = null;
+    }
+
+    public state(Element[][] initialGrid) {
+        this.grid = new Element[initialGrid.length][initialGrid[0].length];
+        for (int i = 0; i < initialGrid.length; i++) {
+            for (int j = 0; j < initialGrid[i].length; j++) {
+                this.grid[i][j] = initialGrid[i][j];             }
+        }
+        this.cost = 0;
         this.parent = null;
     }
 
     public Element[][] getGrid() {
-        return grid;
+        return this.grid;
     }
 
     public void setElement(int row, int col, Element elem) {
@@ -20,7 +30,7 @@ public class state {
     }
 
     public state getParent() {
-        return parent;
+        return this.parent;
     }
 
     public void setParent(state parent) {
@@ -31,8 +41,10 @@ public class state {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
                 if (grid[i][j] != null) {
-                    System.out.print(grid[i][j].getColor() + "  ");
-                } 
+                    System.out.print(grid[i][j].getColor() + " ");
+                } else {
+                    System.out.print("null ");
+                }
             }
             System.out.println();
         }
@@ -43,7 +55,7 @@ public class state {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         state otherState = (state) o;
-        return Arrays.deepEquals(this.grid, otherState.grid); 
+        return Arrays.deepEquals(this.grid, otherState.grid);
     }
 
     @Override

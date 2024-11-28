@@ -19,7 +19,7 @@ public class setting {
         stt.setElement(1, 1, ele2);
         stt.setElement(1, 2, ele1);
         stt.setElement(1, 3, ele2);
-        stt.setElement(1, 4, ele4);
+        stt.setElement(1, 4, ele2);
 
         stt.setElement(2, 0, ele2);
         stt.setElement(2, 1, ele1);
@@ -36,7 +36,7 @@ public class setting {
         stt.setElement(4, 0, ele1);
         stt.setElement(4, 1, ele2);
         stt.setElement(4, 2, ele2);
-        stt.setElement(4, 3, ele1);
-        stt.setElement(4, 4, ele1);
+        stt.setElement(4, 3, ele2);
+        stt.setElement(4, 4, ele4);
     }
 }

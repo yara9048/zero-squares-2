@@ -1,167 +1,161 @@
 import java.util.*;
 
 public class Algorithms {
-    public ArrayList<state> DFS(state root) {
-        ArrayList<state> visitedStates = new ArrayList<>();
-        Stack<state> stack = new Stack<>();
-        stack.push(root);
-        while (!stack.isEmpty()) {
-            if(ArrayManipulator.win
-            ){
-                System.out.println("winnnnnn");
-               }
-            state currentState = stack.pop();
-            visitedStates.add(currentState);
 
-            System.out.println("Starting with");
-            currentState.printGrid();
-
-            if (ArrayManipulator.win) {
-                System.out.println("Reach aim");
-                return buildPath(currentState, visitedStates, "DFS");
-            }
-
-            List<move> nextMoves = ArrayManipulator.NextState(currentState.getGrid());
-            //System.out.print("Valid moves: ");
-            for (move m : nextMoves) {
-                System.out.print("[" + m.getDirection() + "] ");
-            }
-            System.out.println();
-
-            for (move nextMove : nextMoves) {
-                state nextState = performMove(currentState, nextMove);
-                if (nextState != null && !visitedStates.contains(nextState)) {
-                    stack.push(nextState);
-                }
-            }
-        }
-        return null;
+    public static List<state> BFS(state initialState) {
+        Set<state> visited = new HashSet<>();
+        return BFS(initialState, visited);
     }
-
-    public ArrayList<state> BFS(state root) {
-        ArrayList<state> visitedStates = new ArrayList<>();
-        Queue<state> queue = new LinkedList<>();
-        queue.add(root);
-        while (!queue.isEmpty()) {
-            state currentState = queue.poll();
-            if(ArrayManipulator.win){
-                System.out.println("winnnnnn");
-                return buildPath(currentState, visitedStates, "BFS");}
-            System.out.println("Starting with");
-            currentState.printGrid();
-
-            if (ArrayManipulator.win) {
-                System.out.println("reeached aim");
-                return buildPath(currentState, visitedStates, "BFS");
-            }
-
-            List<move> nextMoves = ArrayManipulator.NextState(currentState.getGrid());
-            //System.out.print("Valid moves: ");
-            for (move m : nextMoves) {
-                System.out.print("[" + m.getDirection() + "] ");
-            }
-            System.out.println();
-
-            for (move nextMove : nextMoves) {
-                state nextState = performMove(currentState, nextMove);
-                if (nextState != null && !visitedStates.contains(nextState)) {
-                    queue.add(nextState);
-                    nextState.parent=currentState;
-                }
-            }
-        }
-        return null;
-    }
-
-    public ArrayList<state> buildPath(state goalState, ArrayList<state> visitedStates, String algorithmName) {
-        ArrayList<state> path = new ArrayList<>();
-        state currentState = goalState;
-
-        while (currentState != null) {
-            path.add(currentState);
-            currentState = currentState.getParent();
-        }
-        System.out.println( algorithmName + " Path found!");
-        System.out.println("Number of visited states: " + visitedStates.size());
-        System.out.println("Number of states in the path: " + path.size());
-
-        System.out.println("\nPath:");
-        for (state s : path) {
-            s.printGrid();
-            System.out.println("-----");
     
+    public static List<state> BFS(state currentState, Set<state> visited) {
+        if (visited.contains(currentState)) {
+            return new ArrayList<>();
         }
-        System.out.println("End of path\n");
-        return path;
+            visited.add(currentState);
+            if (ArrayManipulator.win) {
+            System.out.println("Path found:");
+            List<state> path = buildPath(currentState);
+            printPath(path);
+            System.out.println("Number of visited states: " + visited.size());
+            System.out.println("Path length: " + path.size());
+            return path;
+        }
+            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+            state newState = performMove(currentState, validMove);
+            if (newState != null && !visited.contains(newState)) {
+                List<state> result = BFS(newState, visited);
+                if (!result.isEmpty()) {
+                    return result;
+                }
+            }
+        }
+    
+        return new ArrayList<>();
     }
+    
+    public static List<state> DFS(state currentState, Queue visited) {
+        if (visited.isEmpty()) {
+            System.out.println("Initial State:");
+            currentState.printGrid();
+        }
+        if (ArrayManipulator.win) {
+            System.out.println("Found the path");
+            List<state> path = buildPath(currentState);
+            printPath(path);
+    
+            System.out.println("Visited states: " + visited.size());
+            System.out.println("Path length: " + path.size());
+    
+            return path;
+        }
+            visited.add(currentState);
+            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+            state newState = performMove(currentState, validMove);
+                if (newState != null && !visited.contains(newState)) {
+                List<state> result = DFS(newState, visited);  
+                if (!result.isEmpty()) {
+                    return result;  
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
+    
+    public static List<state> DFS(state initialState) {
+        Queue<state> visited = new LinkedList<>();
+        return DFS(initialState, visited);  
+    }
+   
+    public static List<state> UCS(state initialState) {
+        Set<state> visited = new HashSet<>();
+        return UCS(initialState, visited, new PriorityQueue<>(Comparator.comparingInt(state::getCost)));
+    }
+    
+    public static List<state> UCS(state currentState, Set<state> visited, PriorityQueue<state> prique) {
+        if (visited.contains(currentState)) {
+            return new ArrayList<>();
+        }
+        visited.add(currentState);
+        if (ArrayManipulator.win) {
+            System.out.println("Path found:");
+            List<state> path = buildPath(currentState);
+            printPath(path);
+            System.out.println("Number of visited states: " + visited.size());
+            System.out.println("Path length: " + path.size());
+            return path;
+        }
+        prique.add(currentState);
+            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+            state newState = performMove(currentState, validMove);
+            if (newState != null && !visited.contains(newState)) {
+                newState.setCost(currentState.getCost() + 1);
+                List<state> result = UCS(newState, visited, prique);
+                if (!result.isEmpty()) {
+                    return result;
+                }
+            }
+        }
 
-    public state performMove(state currentState, move nextMove) {
-        Element[][] currentGrid = currentState.getGrid();
+        return new ArrayList<>();
+    }
+    
+    public static state performMove(state currentState, move validMove) {
+        Element[][] arrayCopy = copyArray(currentState.getGrid());
         state newState = null;
 
-        switch (nextMove.getDirection()) {
+        switch (validMove.getDirection()) {
             case "up":
-                newState = ArrayManipulator.up(currentGrid);
+                newState = ArrayManipulator.up(arrayCopy);
                 break;
             case "down":
-                newState = ArrayManipulator.down(currentGrid);
+                newState = ArrayManipulator.down(arrayCopy);
                 break;
             case "left":
-                newState = ArrayManipulator.left(currentGrid);
+                newState = ArrayManipulator.left(arrayCopy);
                 break;
             case "right":
-                newState = ArrayManipulator.right(currentGrid);
+                newState = ArrayManipulator.right(arrayCopy);
                 break;
         }
 
         if (newState != null) {
-            newState.setParent(currentState); 
+            newState.setParent(currentState);
+            newState.setCost(currentState.getCost() + 1); 
+            return newState;
         }
 
-        return newState;
+        return null;
     }
 
-    public ArrayList<state> UCS(state root) {
-        ArrayList<state> visitedStates = new ArrayList<>();
-        PriorityQueue<state> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(state::getCost));
-        root.setCost(0); 
-        priorityQueue.add(root);
+    public static List<state> buildPath(state winningState) {
+        List<state> path = new ArrayList<>();
+        state current = winningState;
 
-        while (!priorityQueue.isEmpty()) {
-            state currentState = priorityQueue.poll();
-            if (ArrayManipulator.win) {
-                System.out.println("winnnnnn");
-                return buildPath(currentState, visitedStates, "UCS");
-            }
+        while (current != null) {
+            path.add(0, current); 
+            current = current.getParent();
+        }
 
-            System.out.println("Starting with");
-            currentState.printGrid();
+        return path;
+    }
 
-            if (ArrayManipulator.win) {
-                System.out.println("reached aim");
-                return buildPath(currentState, visitedStates, "UCS");
-            }
-
-            List<move> nextMoves = ArrayManipulator.NextState(currentState.getGrid());
-            for (move m : nextMoves) {
-                System.out.print("[" + m.getDirection() + "] ");
-            }
+    public static void printPath(List<state> path) {
+        System.out.println("Path from initial state to goal:");
+        for (state state : path) {
+           state.printGrid();
             System.out.println();
-
-            for (move nextMove : nextMoves) {
-                state nextState = performMove(currentState, nextMove);
-                if (nextState != null && !visitedStates.contains(nextState)) {
-                    int newCost = currentState.getCost() + 1;
-                    nextState.setCost(newCost);
-                    nextState.setParent(currentState);
-                    priorityQueue.add(nextState);
-                    
-                }
-            }
-            visitedStates.add(currentState);
         }
-        return null; 
     }
 
-}
+    public static Element[][] copyArray(Element[][] original) {
+        int rows = original.length;
+        int cols = original[0].length;
+        Element[][] copy = new Element[rows][cols];
 
+        for (int i = 0; i < rows; i++) {
+            System.arraycopy(original[i], 0, copy[i], 0, cols);
+        }
+
+        return copy;
+    }
+}
