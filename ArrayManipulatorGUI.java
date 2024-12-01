@@ -1,12 +1,10 @@
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 
 public class ArrayManipulatorGUI extends JFrame {
     public JPanel gridPanel;
-    public JTextArea outputArea;
     public setting gameSetting;
 
     public ArrayManipulatorGUI() {
@@ -14,19 +12,22 @@ public class ArrayManipulatorGUI extends JFrame {
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        gameSetting = new setting();
+
+        String[] levels = {"one", "two", "three"};
+        String selectedLevel = (String) JOptionPane.showInputDialog(
+                this, "Select a Level", "Level Selection",
+                JOptionPane.QUESTION_MESSAGE, null, levels, levels[0]);
+
+        if (selectedLevel != null) {
+            gameSetting = new setting(selectedLevel); 
+        } else {
+            System.exit(0); 
+        }
         gridPanel = new JPanel();
-        gridPanel.setLayout(new GridLayout(5, 5));
-        outputArea = new JTextArea();
-        outputArea.setEditable(false);
-        outputArea.setPreferredSize(new Dimension(300, 100));
-        updateGridDisplay(); 
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BorderLayout());
-        bottomPanel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+        gridPanel.setLayout(new GridLayout(5, 5)); 
+        updateGridDisplay();
 
         add(gridPanel, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -35,13 +36,13 @@ public class ArrayManipulatorGUI extends JFrame {
 
                 if (ArrayManipulator.win) {
                     JOptionPane.showMessageDialog(ArrayManipulatorGUI.this, "Game Ended. You won!");
-                    System.exit(0); 
+                    System.exit(0);
                     return;
                 }
 
                 switch (keyCode) {
                     case KeyEvent.VK_UP:
-                        ArrayManipulator.up(gameSetting.stt.getGrid()); 
+                        ArrayManipulator.up(gameSetting.stt.getGrid());
                         updateGridDisplay();
                         break;
                     case KeyEvent.VK_DOWN:
@@ -49,17 +50,17 @@ public class ArrayManipulatorGUI extends JFrame {
                         updateGridDisplay();
                         break;
                     case KeyEvent.VK_LEFT:
-                        ArrayManipulator.left(gameSetting.stt.getGrid());  
+                        ArrayManipulator.left(gameSetting.stt.getGrid());
                         updateGridDisplay();
                         break;
                     case KeyEvent.VK_RIGHT:
-                        ArrayManipulator.right(gameSetting.stt.getGrid()); 
+                        ArrayManipulator.right(gameSetting.stt.getGrid());
                         updateGridDisplay();
                         break;
-                    case KeyEvent.VK_ENTER: 
-                    case KeyEvent.VK_ESCAPE: 
+                    case KeyEvent.VK_ENTER:
+                    case KeyEvent.VK_ESCAPE:
                         if (ArrayManipulator.win) {
-                            System.exit(0); 
+                            System.exit(0);
                         }
                         break;
                     default:
@@ -72,33 +73,47 @@ public class ArrayManipulatorGUI extends JFrame {
     }
 
     public void updateGridDisplay() {
-        gridPanel.removeAll(); 
+        gridPanel.removeAll();
 
-        Element[][] grid = gameSetting.stt.getGrid(); 
+        Element[][] grid = gameSetting.stt.getGrid();
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
                 Element elem = grid[i][j];
                 JPanel cell = new JPanel();
-                if (elem.getColor().equals("blue")) {
-                    cell.setBackground(Color.BLUE);
-                } else if (elem.getColor().equals("black")) {
-                    cell.setBackground(Color.BLACK);
-                } else if (elem.getColor().equals("white")) {
-                    cell.setBackground(Color.WHITE);
-                } else if (elem.getColor().equals("red")) {
-                    cell.setBackground(Color.RED); 
-                }
-                if ("aim".equals(elem.getAim())) {
-                    Border blueBorder = BorderFactory.createLineBorder(Color.BLUE, 3);
-                    cell.setBorder(blueBorder); 
+
+                switch (elem.getColor()) {
+                    case "blue":
+                        cell.setBackground(new Color(0, 0, 250)); 
+                        break;
+                    case "black":
+                        cell.setBackground(new Color(50, 50, 50)); 
+                        break;
+                    case "white":
+                        cell.setBackground(Color.WHITE);
+                        break;
+                    case "red":
+                        cell.setBackground(new Color(255, 99, 71));
+                        break;
+                    default:
+                        cell.setBackground(Color.GRAY);
+                        break;
                 }
 
-                gridPanel.add(cell);
+                cell.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+
+                if ("aim".equals(elem.getAim())) {
+                    Border blueBorder = BorderFactory.createLineBorder(Color.BLUE, 3);
+                    cell.setBorder(blueBorder);
+                }
+
+            
+                gridPanel.add(cell); 
             }
         }
 
-        gridPanel.revalidate();  
-        gridPanel.repaint();         }
+        gridPanel.revalidate(); 
+        gridPanel.repaint();
+    }
 
-  
+
 }

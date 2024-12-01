@@ -1,23 +1,16 @@
 
 import javax.swing.SwingUtilities;
 
-
-
 public class Main {
     public static void main(String[] args) {
-        /////////////TO START THE GAME AS A PLAYER 
-       SwingUtilities.invokeLater(() -> {
-           ArrayManipulatorGUI gui = new ArrayManipulatorGUI(); // Create the GUI object
-           gui.setVisible(true); // Make the GUI visible
-        });
+        /////////////TO START THE GAME AS A PLAYER (using gui)
+       //SwingUtilities.invokeLater(() -> new ArrayManipulatorGUI().setVisible(true));
 
-        //////////////TO START ALGO(FIRST TRY)
-        // setting initialSetting = new setting();
-        // state initialState = initialSetting.stt;
-        // Algorithms algorithms = new Algorithms();
-        // System.out.println("DDDFFFSSS");
-        // algorithms.DFS(initialState);
-        //System.out.println("BBBFFFSSS");
-       // algorithms.BFS(initialState);
+        //////////////TO START ALGO(try each algo separetly , eith console only)
+        setting initialSetting = new setting("one");
+        state initialState = initialSetting.stt;
+        Algorithms algorithms = new Algorithms();
+        ///////////write instead of BFS the name of the algo in upper case
+       algorithms.AStar(initialState);
      }
 }

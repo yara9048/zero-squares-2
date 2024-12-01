@@ -89,13 +89,14 @@ public class Algorithms {
             state newState = performMove(currentState, validMove);
             if (newState != null && !visited.contains(newState)) {
                 newState.setCost(currentState.getCost() + 1);
+                System.out.println("fkdjnvckdfjnv");
+                System.out.println(newState.getCost());
                 List<state> result = UCS(newState, visited, prique);
                 if (!result.isEmpty()) {
                     return result;
                 }
             }
         }
-
         return new ArrayList<>();
     }
     
@@ -158,4 +159,64 @@ public class Algorithms {
 
         return copy;
     }
+   
+    public static int calculateHeuristic(Element[][] grid) {
+        int blueRow = -1, blueCol = -1;
+        int aimRow = -1, aimCol = -1;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if ("blue".equals(grid[i][j].getColor())) {
+                    blueRow = i;
+                    blueCol = j;
+                }
+                if ("aim".equals(grid[i][j].getAim())) {
+                    aimRow = i;
+                    aimCol = j;
+                }
+            }
+        }
+        if (blueRow == -1 || aimRow == -1) {
+            return Integer.MAX_VALUE;         }
+
+        return Math.abs(blueRow - aimRow) + Math.abs(blueCol - aimCol);
+    }
+
+    public static List<state> AStar(state initialState) {
+        PriorityQueue<state> openSet = new PriorityQueue<>(Comparator.comparingInt(s -> s.getCost() + calculateHeuristic(s.getGrid())));
+        Set<state> closedSet = new HashSet<>();
+        initialState.setCost(0); 
+        openSet.add(initialState);
+    
+        while (!openSet.isEmpty()) {
+            state currentState = openSet.poll();
+                if (ArrayManipulator.win) {
+                System.out.println("Path found using A*:");
+                List<state> path = buildPath(currentState);
+                printPath(path);
+                System.out.println("Number of visited states: " + closedSet.size());
+                System.out.println("Path length: " + path.size());
+                return path;
+            }
+    
+            closedSet.add(currentState);
+            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+                state newState = performMove(currentState, validMove);
+                if (newState == null || closedSet.contains(newState)) {
+                    continue;
+                }
+    
+                int tentativeCost = currentState.getCost() + 1; 
+                int heuristic = calculateHeuristic(newState.getGrid());
+                int finalllll = tentativeCost + heuristic;
+                    if (!openSet.contains(newState) || tentativeCost < newState.getCost()) {
+                    newState.setCost(tentativeCost);
+                    openSet.add(newState);
+                }
+            }
+        }
+    
+        System.out.println("No path found using A*.");
+        return new ArrayList<>();
+    }
+    
 }

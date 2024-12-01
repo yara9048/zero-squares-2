@@ -24,7 +24,7 @@ public class move {
     }
     @Override
     public String toString() {
-        return "Available move : "+ direction;
+        return "move : "+ direction;
     }
     @Override
 public boolean equals(Object obj) {
