@@ -160,7 +160,8 @@ public class Algorithms {
         return copy;
     }
    
-    public static int calculateHeuristic(Element[][] grid) {
+    public static int calculateHeuristic(state State) {
+        Element[][] grid = State.getGrid();
         int blueRow = -1, blueCol = -1;
         int aimRow = -1, aimCol = -1;
         for (int i = 0; i < grid.length; i++) {
@@ -182,14 +183,16 @@ public class Algorithms {
     }
 
     public static List<state> AStar(state initialState) {
-        PriorityQueue<state> openSet = new PriorityQueue<>(Comparator.comparingInt(s -> s.getCost() + calculateHeuristic(s.getGrid())));
+        PriorityQueue<state> openSet = new PriorityQueue<>(Comparator.comparingInt(s -> s.getCost() + calculateHeuristic(s)));
         Set<state> closedSet = new HashSet<>();
+    
         initialState.setCost(0); 
         openSet.add(initialState);
     
         while (!openSet.isEmpty()) {
             state currentState = openSet.poll();
-                if (ArrayManipulator.win) {
+    
+            if (ArrayManipulator.win) {
                 System.out.println("Path found using A*:");
                 List<state> path = buildPath(currentState);
                 printPath(path);
@@ -199,24 +202,65 @@ public class Algorithms {
             }
     
             closedSet.add(currentState);
+    
             for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
                 state newState = performMove(currentState, validMove);
                 if (newState == null || closedSet.contains(newState)) {
                     continue;
                 }
     
-                int tentativeCost = currentState.getCost() + 1; 
-                int heuristic = calculateHeuristic(newState.getGrid());
-                int finalllll = tentativeCost + heuristic;
-                    if (!openSet.contains(newState) || tentativeCost < newState.getCost()) {
+                int tentativeCost = currentState.getCost() + 1;
+                int heuristic = calculateHeuristic(newState);
+                int finallllll = tentativeCost + heuristic;
+            
+    
+                if (!openSet.contains(newState) || tentativeCost < newState.getCost()) {
                     newState.setCost(tentativeCost);
                     openSet.add(newState);
                 }
             }
         }
-    
         System.out.println("No path found using A*.");
         return new ArrayList<>();
     }
+
+
+    public static state simpleHillClimbing(state initialState) {
+        state current = initialState;
+        while (true) {
+            List<state> neighbors = generateNeighbors(current);
+            state bestNeighbor = null;
+            for (state neighbor : neighbors) {
+                if (calculateHeuristic(neighbor) < calculateHeuristic(current)) {
+                    bestNeighbor = neighbor;
+                }
+            }
+
+            if (bestNeighbor == null) {
+                break;
+            }
+            current = bestNeighbor;
+        }
+
+        if (ArrayManipulator.win) {
+            System.out.println("Goal reached!");
+            current.printGrid();
+        } else {
+            System.out.println("Stuck in local optimum.");
+        }
+
+        return current;
+    }
     
+    private static List<state> generateNeighbors(state currentState) {
+        List<state> neighbors = new ArrayList<>();
+        for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+            state newState = performMove(currentState, validMove);
+            if (newState != null) {
+                neighbors.add(newState);
+            }
+        }
+        return neighbors;
+    }
+
 }
