@@ -228,13 +228,10 @@ public class Algorithms {
         state current = initialState;
     
         while (true) {
-            // Generate all neighbors of the current state
             List<state> neighbors = generateNeighbors(current);
             state bestNeighbor = null;
-            int currentHeuristic = calculateHeuristic(current); // Heuristic of the current state
+            int currentHeuristic = calculateHeuristic(current); 
             int bestHeuristic = currentHeuristic;
-    
-            // Find the neighbor with the best (lowest) heuristic
             for (state neighbor : neighbors) {
                 int neighborHeuristic = calculateHeuristic(neighbor);
                 if (neighborHeuristic < bestHeuristic) {
@@ -243,13 +240,11 @@ public class Algorithms {
                 }
             }
     
-            // If no improvement is found or no better neighbors exist, terminate
             if (bestNeighbor == null || bestHeuristic >= currentHeuristic) {
                 System.out.println("Stuck in a local optimum.");
                 return current;
             }
     
-            // Move to the best neighbor
             current = bestNeighbor;
     
             if (checkAllSquaresReached(current.getGrid(), game.squares)) {
@@ -283,13 +278,11 @@ public class Algorithms {
         state current = initialState;
     
         while (true) {
-            // Generate all neighbors of the current state
             List<state> neighbors = generateNeighbors(current);
             state bestNeighbor = null;
-            int currentHeuristic = calculateHeuristic(current); // Heuristic of the current state
+            int currentHeuristic = calculateHeuristic(current);
             int bestHeuristic = Integer.MAX_VALUE;
     
-            // Find the neighbor with the best (lowest) heuristic
             for (state neighbor : neighbors) {
                 int neighborHeuristic = calculateHeuristic(neighbor);
                 if (neighborHeuristic < bestHeuristic) {
@@ -298,16 +291,12 @@ public class Algorithms {
                 }
             }
     
-            // If the best neighbor does not improve the current state, terminate
             if (bestNeighbor == null || bestHeuristic >= currentHeuristic) {
                 System.out.println("Stuck in a local optimum.");
                 return current;
             }
+                current = bestNeighbor;
     
-            // Move to the best neighbor
-            current = bestNeighbor;
-    
-            // Check if the goal is achieved
             if (checkAllSquaresReached(current.getGrid(), game.squares)) {
                 System.out.println("Goal reached!");
                 return current;

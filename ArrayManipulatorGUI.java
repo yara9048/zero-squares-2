@@ -15,16 +15,15 @@ public class ArrayManipulatorGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Options for level selection
         String[] levels = {"one", "two", "three"};
         level = (String) JOptionPane.showInputDialog(
                 this, "Select a Level", "Level Selection",
                 JOptionPane.QUESTION_MESSAGE, null, levels, levels[0]);
 
         if (level != null) {
-            gameSetting = new setting(level); // Use the selected level
+            gameSetting = new setting(level); 
         } else {
-            System.exit(0); // Exit if no level is selected
+            System.exit(0); 
         }
 
         gridPanel = new JPanel();
@@ -86,9 +85,7 @@ public class ArrayManipulatorGUI extends JFrame {
             for (int j = 0; j < grid[i].length; j++) {
                 Element elem = grid[i][j];
                 JPanel cell = new JPanel();
-    
-                // Set the background color based on the element's color
-                switch (elem.getColor()) {
+                    switch (elem.getColor()) {
                     case "blue":
                         cell.setBackground(new Color(0, 0, 250));
                         break;
@@ -126,18 +123,17 @@ public class ArrayManipulatorGUI extends JFrame {
                                 break;
                         }
     
-                        // Merge borders if necessary
                         Border existingBorder = cell.getBorder();
                         Border targetBorder = BorderFactory.createLineBorder(squareColor, 3);
                         cell.setBorder(BorderFactory.createCompoundBorder(existingBorder, targetBorder));
                     }
                 }
     
-                gridPanel.add(cell); // Add the cell to the grid panel
+                gridPanel.add(cell);
             }
         }
     
-        gridPanel.revalidate(); // Revalidate the panel
-        gridPanel.repaint();    // Repaint to reflect updates
+        gridPanel.revalidate();
+        gridPanel.repaint(); 
     }
     }

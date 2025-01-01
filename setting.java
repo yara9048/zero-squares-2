@@ -33,7 +33,7 @@ public final class setting {
     }
     
 
-    private void setUpLevelOne(List<Square> squares, Element ele1, Element ele2, Element ele3, Element ele4, Element ele5,Element ele6) {
+    public void setUpLevelOne(List<Square> squares, Element ele1, Element ele2, Element ele3, Element ele4, Element ele5,Element ele6) {
         stt.setElement(1, 0, new Element("white", "road", "pink"));
         stt.setElement(1, 1, ele2);
         stt.setElement(1, 2, ele2);
@@ -101,11 +101,10 @@ public final class setting {
         stt.setElement(4, 3, ele1);
         stt.setElement(4, 4, ele4);
 
-        // Add squares to the list based on the level
-        squares.add(new Square("blue", 1, 4, 3, 0)); // Example of a square for this level
+        squares.add(new Square("blue", 1, 4, 3, 0)); 
     }
 
-    private void setUpLevelThree(List<Square> squares, Element ele1, Element ele2, Element ele3, Element ele4,Element ele5) {
+    public void setUpLevelThree(List<Square> squares, Element ele1, Element ele2, Element ele3, Element ele4,Element ele5) {
         stt.setElement(0, 0, ele1);
         stt.setElement(0, 1, ele2);
         stt.setElement(0, 2, ele2);
@@ -136,7 +135,6 @@ public final class setting {
         stt.setElement(4, 3, ele1);
         stt.setElement(4, 4, ele1);
 
-        // Add squares to the list based on the level
-        squares.add(new Square("blue", 1, 4, 3, 0)); // Example of a square for this level
+        squares.add(new Square("blue", 1, 4, 3, 0)); 
     }
 }

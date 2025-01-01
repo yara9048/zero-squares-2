@@ -1,10 +1,10 @@
 public class Square {
-    private String color;
-    private int row;
-    private int col;
-    private int targetRow;
-    private int targetCol;
-    private boolean reachedTarget;  
+    public String color;
+    public int row;
+    public int col;
+    public int targetRow;
+    public int targetCol;
+    public boolean reachedTarget;  
 
     public Square(String color, int row, int col, int targetRow, int targetCol) {
         this.color = color;

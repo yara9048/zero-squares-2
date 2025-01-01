@@ -26,7 +26,7 @@ public class ArrayManipulator {
         return moveSquares(array, squares, "down");
     }
     
-    private static state moveSquares(Element[][] array, List<Square> squares, String direction) {
+    public static state moveSquares(Element[][] array, List<Square> squares, String direction) {
         NextState(array, squares);
         boolean anySquareMoved;
         do {
@@ -59,7 +59,7 @@ public class ArrayManipulator {
         return new state(array);
     }
       
-    private static int[] findSquarePosition(Element[][] array, String color) {
+    public static int[] findSquarePosition(Element[][] array, String color) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
                 if (array[i][j].getColor().equals(color)) {
@@ -70,7 +70,7 @@ public class ArrayManipulator {
         return null;
     }
     
-    private static int[] findTarget(Element[][] array, int currentRow, int currentCol, String direction) {
+    public static int[] findTarget(Element[][] array, int currentRow, int currentCol, String direction) {
         switch (direction) {
             case "left":
                 for (int j = currentCol - 1; j >= 0; j--) {
@@ -105,7 +105,7 @@ public class ArrayManipulator {
         }
     }
     
-    private static void moveSquare(Element[][] array, Square square, int currentRow, int currentCol, int targetRow, int targetCol) {
+    public static void moveSquare(Element[][] array, Square square, int currentRow, int currentCol, int targetRow, int targetCol) {
         array[targetRow][targetCol] = new Element(square.getColor(), "square", "not aim");
         array[currentRow][currentCol] = new Element("white", "road", "not aim");
     
@@ -121,7 +121,7 @@ public class ArrayManipulator {
         return !element.getColor().equals("white") && element.getAim().equals("aim");
     }
     
-    private static void checkAndEndGame(List<Square> squares) {
+    public static void checkAndEndGame(List<Square> squares) {
         boolean allReached = squares.stream().allMatch(Square::isReachedTarget);
     
         if (allReached) {

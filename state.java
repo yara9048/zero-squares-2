@@ -63,7 +63,7 @@ public class state {
         }
     }
 
-    private boolean isSquare(int x, int y, List<Square> squares) {
+    public boolean isSquare(int x, int y, List<Square> squares) {
         for (Square square : squares) {
             if (square.getRow() == x && square.getCol() == y) {
                 return true;
@@ -72,7 +72,7 @@ public class state {
         return false;
     }
 
-    private String getSquareColor(int x, int y, List<Square> squares) {
+    public String getSquareColor(int x, int y, List<Square> squares) {
         for (Square square : squares) {
             if (square.getRow() == x && square.getCol() == y) {
                 return square.getColor();
@@ -86,12 +86,12 @@ public class state {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         state other = (state) obj;
-        return Arrays.deepEquals(this.grid, other.grid); // Assuming grid is a 2D array
+        return Arrays.deepEquals(this.grid, other.grid);
     }
     
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(this.grid); // Ensure grid is hashed properly
+        return Arrays.deepHashCode(this.grid);
     }
     
     public void setCost(int cost) {
