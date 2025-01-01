@@ -1,7 +1,8 @@
 import java.util.*;
 
 public class Algorithms {
-
+    static setting game = new setting("one");
+   
     public static List<state> BFS(state initialState) {
         Set<state> visited = new HashSet<>();
         return BFS(initialState, visited);
@@ -20,7 +21,8 @@ public class Algorithms {
             System.out.println("Path length: " + path.size());
             return path;
         }
-            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+           
+        for (move validMove : ArrayManipulator.NextState(currentState.getGrid() , game.squares)) {
             state newState = performMove(currentState, validMove);
             if (newState != null && !visited.contains(newState)) {
                 List<state> result = BFS(newState, visited);
@@ -34,27 +36,25 @@ public class Algorithms {
     }
     
     public static List<state> DFS(state currentState, Queue visited) {
-        if (visited.isEmpty()) {
-            System.out.println("Initial State:");
-            currentState.printGrid();
-        }
+        System.out.println("Current State:");
+        currentState.printState(game.squares);  
+        
         if (ArrayManipulator.win) {
             System.out.println("Found the path");
             List<state> path = buildPath(currentState);
             printPath(path);
-    
             System.out.println("Visited states: " + visited.size());
             System.out.println("Path length: " + path.size());
-    
             return path;
         }
-            visited.add(currentState);
-            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+        
+        visited.add(currentState);
+        for (move validMove : ArrayManipulator.NextState(currentState.getGrid(), game.squares)) {
             state newState = performMove(currentState, validMove);
-                if (newState != null && !visited.contains(newState)) {
-                List<state> result = DFS(newState, visited);  
+            if (newState != null && !visited.contains(newState)) {
+                List<state> result = DFS(newState, visited);
                 if (!result.isEmpty()) {
-                    return result;  
+                    return result;
                 }
             }
         }
@@ -85,7 +85,7 @@ public class Algorithms {
             return path;
         }
         prique.add(currentState);
-            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+            for (move validMove : ArrayManipulator.NextState(currentState.getGrid(),game.squares)) {
             state newState = performMove(currentState, validMove);
             if (newState != null && !visited.contains(newState)) {
                 newState.setCost(currentState.getCost() + 1);
@@ -106,16 +106,16 @@ public class Algorithms {
 
         switch (validMove.getDirection()) {
             case "up":
-                newState = ArrayManipulator.up(arrayCopy);
+                newState = ArrayManipulator.up(arrayCopy,game.squares);
                 break;
             case "down":
-                newState = ArrayManipulator.down(arrayCopy);
+                newState = ArrayManipulator.down(arrayCopy,game.squares);
                 break;
             case "left":
-                newState = ArrayManipulator.left(arrayCopy);
+                newState = ArrayManipulator.left(arrayCopy,game.squares);
                 break;
             case "right":
-                newState = ArrayManipulator.right(arrayCopy);
+                newState = ArrayManipulator.right(arrayCopy,game.squares);
                 break;
         }
 
@@ -143,7 +143,7 @@ public class Algorithms {
     public static void printPath(List<state> path) {
         System.out.println("Path from initial state to goal:");
         for (state state : path) {
-           state.printGrid();
+           state.printState(game.squares);
             System.out.println();
         }
     }
@@ -203,7 +203,7 @@ public class Algorithms {
     
             closedSet.add(currentState);
     
-            for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+            for (move validMove : ArrayManipulator.NextState(currentState.getGrid(),game.squares)) {
                 state newState = performMove(currentState, validMove);
                 if (newState == null || closedSet.contains(newState)) {
                     continue;
@@ -223,38 +223,45 @@ public class Algorithms {
         System.out.println("No path found using A*.");
         return new ArrayList<>();
     }
-
-
+ 
     public static state simpleHillClimbing(state initialState) {
         state current = initialState;
+    
         while (true) {
+            // Generate all neighbors of the current state
             List<state> neighbors = generateNeighbors(current);
             state bestNeighbor = null;
+            int currentHeuristic = calculateHeuristic(current); // Heuristic of the current state
+            int bestHeuristic = currentHeuristic;
+    
+            // Find the neighbor with the best (lowest) heuristic
             for (state neighbor : neighbors) {
-                if (calculateHeuristic(neighbor) < calculateHeuristic(current)) {
+                int neighborHeuristic = calculateHeuristic(neighbor);
+                if (neighborHeuristic < bestHeuristic) {
+                    bestHeuristic = neighborHeuristic;
                     bestNeighbor = neighbor;
                 }
             }
-
-            if (bestNeighbor == null) {
-                break;
+    
+            // If no improvement is found or no better neighbors exist, terminate
+            if (bestNeighbor == null || bestHeuristic >= currentHeuristic) {
+                System.out.println("Stuck in a local optimum.");
+                return current;
             }
+    
+            // Move to the best neighbor
             current = bestNeighbor;
+    
+            if (checkAllSquaresReached(current.getGrid(), game.squares)) {
+                System.out.println("Goal reached!");
+                return current;
+            }
         }
-
-        if (ArrayManipulator.win) {
-            System.out.println("Goal reached!");
-            current.printGrid();
-        } else {
-            System.out.println("Stuck in local optimum.");
-        }
-
-        return current;
     }
     
-    private static List<state> generateNeighbors(state currentState) {
+    public static List<state> generateNeighbors(state currentState) {
         List<state> neighbors = new ArrayList<>();
-        for (move validMove : ArrayManipulator.NextState(currentState.getGrid())) {
+        for (move validMove : ArrayManipulator.NextState(currentState.getGrid(), game.squares)) {
             state newState = performMove(currentState, validMove);
             if (newState != null) {
                 neighbors.add(newState);
@@ -262,5 +269,51 @@ public class Algorithms {
         }
         return neighbors;
     }
-
+    
+    public static boolean checkAllSquaresReached(Element[][] grid, List<Square> squares) {
+        for (Square square : squares) {
+            if (!square.isReachedTarget()) { 
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static state steepestHillClimbing(state initialState) {
+        state current = initialState;
+    
+        while (true) {
+            // Generate all neighbors of the current state
+            List<state> neighbors = generateNeighbors(current);
+            state bestNeighbor = null;
+            int currentHeuristic = calculateHeuristic(current); // Heuristic of the current state
+            int bestHeuristic = Integer.MAX_VALUE;
+    
+            // Find the neighbor with the best (lowest) heuristic
+            for (state neighbor : neighbors) {
+                int neighborHeuristic = calculateHeuristic(neighbor);
+                if (neighborHeuristic < bestHeuristic) {
+                    bestHeuristic = neighborHeuristic;
+                    bestNeighbor = neighbor;
+                }
+            }
+    
+            // If the best neighbor does not improve the current state, terminate
+            if (bestNeighbor == null || bestHeuristic >= currentHeuristic) {
+                System.out.println("Stuck in a local optimum.");
+                return current;
+            }
+    
+            // Move to the best neighbor
+            current = bestNeighbor;
+    
+            // Check if the goal is achieved
+            if (checkAllSquaresReached(current.getGrid(), game.squares)) {
+                System.out.println("Goal reached!");
+                return current;
+            }
+        }
+    }
+    
+    
 }

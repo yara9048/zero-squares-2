@@ -1,15 +1,15 @@
 import java.util.Objects;
 
 public class Element {
-    public String color;
-    public String shape;
-    public String aim;
-
-    public Element(String color, String shape, String aim) {
-        this.color = color;
-        this.shape = shape;
-        this.aim = aim;
-    }
+        public String color;
+        public String shape;
+        public String aim;
+    
+        public Element(String color, String shape, String aim) {
+            this.color = color;
+            this.shape = shape;
+            this.aim = aim;
+        }
 
     public String getColor() {
         return color;

@@ -1,192 +1,135 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ArrayManipulator {
 
     static boolean win = false;
+    static Map<String, Boolean> colorReached = new HashMap<>();
     public static List<move> movesList = new ArrayList<>();
+   
 
-    public static state left(Element[][] array) {
+    public static state left(Element[][] array, List<Square> squares) {
+        return moveSquares(array, squares, "left");
+    }
+    
+    public static state right(Element[][] array, List<Square> squares) {
+        return moveSquares(array, squares, "right");
+    }
+    
+    public static state up(Element[][] array, List<Square> squares) {
+        return moveSquares(array, squares, "up");
+    }
+    
+    public static state down(Element[][] array, List<Square> squares) {
+        return moveSquares(array, squares, "down");
+    }
+    
+    private static state moveSquares(Element[][] array, List<Square> squares, String direction) {
+        NextState(array, squares);
+        boolean anySquareMoved;
+        do {
+            anySquareMoved = false;
+    
+            for (Square square : squares) {
+                if (square.isReachedTarget()) {
+                    continue;
+                }
+    
+                int[] position = findSquarePosition(array, square.getColor());
+                if (position == null) continue;
+    
+                int currentRow = position[0];
+                int currentCol = position[1];
+    
+                int[] targetPosition = findTarget(array, currentRow, currentCol, direction);
+                int targetRow = targetPosition[0];
+                int targetCol = targetPosition[1];
+    
+                if (targetRow != currentRow || targetCol != currentCol) {
+                    moveSquare(array, square, currentRow, currentCol, targetRow, targetCol);
+                    anySquareMoved = true;
+                }
+            }
+    
+        } while (anySquareMoved);
+    
+        checkAndEndGame(squares);
+        return new state(array);
+    }
+      
+    private static int[] findSquarePosition(Element[][] array, String color) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
-                if (array[i][j].equals(new Element("blue", "square", "not aim"))) {
-                    if (j - 1 < 0) { 
-                        System.out.println("Border");
-                        return new state(array);
-                    }
-                    int targetCol = -1;
-                    for (int k = j - 1; k >= 0; k--) {
-                        if (checkWinCondition(array, i, k)) {
-                            array[i][k] = new Element("blue", "square", "aim");
-                            array[i][j] = new Element("white", "road", "not aim");
-                            isVisited(i, k, "left");
-                            return new state(array);
-                        }
-    
-                        if (array[i][j - 1].equals(new Element("black", "block", "not aim"))) {
-                            System.out.println("Blocked");
-                            return new state(array);
-                        }
-    
-                        if (array[i][k].equals(new Element("black", "block", "not aim"))) {
-                            targetCol = k + 1;
-                            break;
-                        }
-                    }
-    
-                    if (targetCol == -1) {
-                        targetCol = 0;
-                    }
-    
-                    array[i][targetCol] = new Element("blue", "square", "not aim");
-                    array[i][j] = new Element("white", "road", "not aim");
-                    isVisited(i, targetCol, "left");
-                    return new state(array);
+                if (array[i][j].getColor().equals(color)) {
+                    return new int[]{i, j};
                 }
             }
         }
         return null;
     }
     
-    public static state right(Element[][] array) {
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                if (array[i][j].equals(new Element("blue", "square", "not aim"))) {
-                    if (j + 1 >= array[i].length) { 
-                        System.out.println("Border");
-                        return new state(array);
+    private static int[] findTarget(Element[][] array, int currentRow, int currentCol, String direction) {
+        switch (direction) {
+            case "left":
+                for (int j = currentCol - 1; j >= 0; j--) {
+                    if (isBlocker(array[currentRow][j]) || !array[currentRow][j].getColor().equals("white")) {
+                        return new int[]{currentRow, j + 1};
                     }
-                    int targetCol = -1;
-                    for (int k = j + 1; k < array[i].length; k++) {
-                        if (checkWinCondition(array, i, k)) {
-                            array[i][k] = new Element("blue", "square", "aim");
-                            array[i][j] = new Element("white", "road", "not aim");
-                            isVisited(i, k, "right");
-                            return new state(array);
-                        }
-    
-                        if (array[i][j + 1].equals(new Element("black", "block", "not aim"))) {
-                            System.out.println("Blocked");
-                            return new state(array);
-                        }
-    
-                        if (array[i][k].equals(new Element("black", "block", "not aim"))) {
-                            targetCol = k - 1;
-                            break;
-                        }
-                    }
-    
-                    if (targetCol == -1) {
-                        targetCol = array[i].length - 1;
-                    }
-    
-                    array[i][targetCol] = new Element("blue", "square", "not aim");
-                    array[i][j] = new Element("white", "road", "not aim");
-                    isVisited(i, targetCol, "right");
-                    return new state(array);
                 }
-            }
+                return new int[]{currentRow, 0};
+            case "right":
+                for (int j = currentCol + 1; j < array[currentRow].length; j++) {
+                    if (isBlocker(array[currentRow][j]) || !array[currentRow][j].getColor().equals("white")) {
+                        return new int[]{currentRow, j - 1};
+                    }
+                }
+                return new int[]{currentRow, array[currentRow].length - 1};
+            case "up":
+                for (int i = currentRow - 1; i >= 0; i--) {
+                    if (isBlocker(array[i][currentCol]) || !array[i][currentCol].getColor().equals("white")) {
+                        return new int[]{i + 1, currentCol};
+                    }
+                }
+                return new int[]{0, currentCol};
+            case "down":
+                for (int i = currentRow + 1; i < array.length; i++) {
+                    if (isBlocker(array[i][currentCol]) || !array[i][currentCol].getColor().equals("white")) {
+                        return new int[]{i - 1, currentCol};
+                    }
+                }
+                return new int[]{array.length - 1, currentCol};
+            default:
+                return new int[]{currentRow, currentCol};
         }
-        return null;
     }
     
-    public static state up(Element[][] array) {
-        for (int j = 0; j < array[0].length; j++) {
-            for (int i = 0; i < array.length; i++) {
-                if (array[i][j].equals(new Element("blue", "square", "not aim"))) {
-                    if (i - 1 < 0) {
-                        System.out.println("Border");
-                        return new state(array);
-                    }
+    private static void moveSquare(Element[][] array, Square square, int currentRow, int currentCol, int targetRow, int targetCol) {
+        array[targetRow][targetCol] = new Element(square.getColor(), "square", "not aim");
+        array[currentRow][currentCol] = new Element("white", "road", "not aim");
     
-                    int targetRow = -1;
-                    for (int k = i - 1; k >= 0; k--) {
-                        if (checkWinCondition(array, k, j)) {
-                            array[k][j] = new Element("blue", "square", "aim");
-                            array[i][j] = new Element("white", "road", "not aim");
-                            isVisited(k, j, "up");
-                            return new state(array);
-                        }
+        System.out.println("Square moved from (" + currentRow + ", " + currentCol + ") to (" + targetRow + ", " + targetCol + ")");
     
-                        if (array[i - 1][j].equals(new Element("black", "block", "not aim"))) {
-                            System.out.println("Blocked");
-                            return new state(array);
-                        }
-    
-                        if (array[k][j].equals(new Element("black", "block", "not aim"))) {
-                            targetRow = k + 1;
-                            break;
-                        }
-                    }
-    
-                    if (targetRow == -1) {
-                        targetRow = 0;
-                    }
-    
-                    array[targetRow][j] = new Element("blue", "square", "not aim");
-                    array[i][j] = new Element("white", "road", "not aim");
-                    isVisited(targetRow, j, "up");
-                    return new state(array);
-                }
-            }
+        if (targetRow == square.getTargetRow() && targetCol == square.getTargetCol()) {
+            square.setReachedTarget(true);
+            System.out.println("Square " + square.getColor() + " reached its target at (" + targetRow + ", " + targetCol + ")");
         }
-        return null;
     }
     
-    public static state down(Element[][] array) {
-        for (int j = 0; j < array[0].length; j++) {
-            for (int i = array.length - 1; i >= 0; i--) {
-                if (array[i][j].equals(new Element("blue", "square", "not aim"))) {
-                    if (i + 1 >= array.length) { 
-                        System.out.println("Border");
-                        return new state(array);
-                    }
+    public static boolean isBlocker(Element element) {
+        return !element.getColor().equals("white") && element.getAim().equals("aim");
+    }
     
-                    int targetRow = -1;
-                    for (int k = i + 1; k < array.length; k++) {
-                        if (checkWinCondition(array, k, j)) {
-                            array[k][j] = new Element("blue", "square", "aim");
-                            array[i][j] = new Element("white", "road", "not aim");
-                            isVisited(k, j, "down");
-                            return new state(array);
-                        }
+    private static void checkAndEndGame(List<Square> squares) {
+        boolean allReached = squares.stream().allMatch(Square::isReachedTarget);
     
-                        if (array[i + 1][j].equals(new Element("black", "block", "not aim"))) {
-                            System.out.println("Blocked");
-                            return new state(array);
-                        }
-    
-                        if (array[k][j].equals(new Element("black", "block", "not aim"))) {
-                            targetRow = k - 1;
-                            break;
-                        }
-                    }
-    
-                    if (targetRow == -1) {
-                        targetRow = array.length - 1;
-                    }
-    
-                    array[targetRow][j] = new Element("blue", "square", "not aim");
-                    array[i][j] = new Element("white", "road", "not aim");
-                    isVisited(targetRow, j, "down");
-                    return new state(array);
-                }
-            }
+        if (allReached) {
+            System.out.println("All squares have reached their targets! Game Over!");
+            win=true;
         }
-        return null;
     }
 
-    public static boolean checkWinCondition(Element[][] array, int row, int col) {
-        if (row >= 0 && row < array.length && col >= 0 && col < array[0].length) {
-            if ("aim".equals(array[row][col].getAim())) {
-                win = true;
-                System.out.println("Win! Reached the aim cell at: (" + row + ", " + col + ")");
-                return true;
-            }
-        }
-        return false;
-    }
-    
     public static boolean isVisited(int row, int col, String direction) {
         move newMove = new move(row, col, direction);
         if (movesList.contains(newMove)) {
@@ -199,31 +142,38 @@ public class ArrayManipulator {
         }
     }
 
-    public static List<move> NextState(Element[][] array) {
-        List<move> nextStateList = new ArrayList<>();
-
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                if (array[i][j].equals(new Element("blue", "square", "not aim"))) {
-                    if (i - 1 >= 0 && array[i - 1][j].equals(new Element("white", "road", "not aim"))) {
-                        nextStateList.add(new move(i, j, "up"));
-                    }
-                    if (i + 1 < array.length && array[i + 1][j].equals(new Element("white", "road", "not aim"))) {
-                        nextStateList.add(new move(i, j, "down"));
-                    }
-                    if (j - 1 >= 0 && array[i][j - 1].equals(new Element("white", "road", "not aim"))) {
-                        nextStateList.add(new move(i, j, "left"));
-                    }
-                    if (j + 1 < array[0].length && array[i][j + 1].equals(new Element("white", "road", "not aim"))) {
-                        nextStateList.add(new move(i, j, "right"));
-                    }
+    public static List<move> NextState(Element[][] array, List<Square> squares) {
+        List<move> allMoves = new ArrayList<>();
+    
+        for (Square square : squares) {
+            List<move> squareMoves = new ArrayList<>();
+            int[] position = findSquarePosition(array, square.getColor());
+    
+            if (position != null) {
+                int row = position[0];
+                int col = position[1];
+    
+                if (row - 1 >= 0 && array[row - 1][col].getColor().equals("white")) {
+                    squareMoves.add(new move(row, col, "up"));
                 }
+                if (row + 1 < array.length && array[row + 1][col].getColor().equals("white")) {
+                    squareMoves.add(new move(row, col, "down"));
+                }
+                if (col - 1 >= 0 && array[row][col - 1].getColor().equals("white")) {
+                    squareMoves.add(new move(row, col, "left"));
+                }
+                if (col + 1 < array[0].length && array[row][col + 1].getColor().equals("white")) {
+                    squareMoves.add(new move(row, col, "right"));
+                }
+    
+                System.out.println("Valid moves for square " + square.getColor() + ": " + squareMoves);
+                allMoves.addAll(squareMoves);
             }
         }
-
-        System.out.println("Valid moves: " + nextStateList);
-        System.out.println("Win: " + win);
-
-        return nextStateList;
+    
+        System.out.println("All valid moves: " + allMoves);
+        return allMoves;
     }
+    
+ 
 }
